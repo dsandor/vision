@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+    <head>
+        <style>
+            #status-indicator {
+              display: inline-block;
+              height: 10px;
+              width: 10px;
+              background-color: red;
+              border-radius: 20px;
+            }
+            #status-indicator.online {
+              background-color: green;
+            }
+        </style>
+        <script type="text/javascript" src="vision-client.js"></script>
+        <script type="text/javascript">
+            if (window.vision && window.vision.init) {
+                window.vision.init({ host: 'localhost', port: 16999, heartbeatInterval: 3000 });
+            }
+        </script>
+    </head>
+    <body>
+        <p>
+            OpenFin adapter <span id="of-version"></span>
+            Ready: <span id="status-indicator"></span>
+        </p>
+    </body>
+</html>

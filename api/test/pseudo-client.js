@@ -1,7 +1,7 @@
 'use strict';
 
 const WebSocket = require('ws'),
-      ws        = new WebSocket('ws://localhost:16999'),
+      ws        = new WebSocket('ws://localhost:16999', undefined, {headers: { Authentication: 'Token abc'}}),
       argv      = require('minimist')(process.argv.slice(2));
 
 let connectionId;
