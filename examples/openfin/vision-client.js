@@ -41,14 +41,19 @@ window.vision = {
 
    heartbeat: (socket) => {
      setTimeout(() => {
-       socket.send(JSON.stringify({
-         type: 'heartbeat',
-         location: window.location,
-         connectionId: window.vision.connectionId
-       }));
-       window.vision.heartbeat(socket);
-     }, window.vision.options.heartbeatInterval || 1000);
 
+       if (socket.readyState === 1) {
+         socket.send(JSON.stringify({
+           type: 'heartbeat',
+           location: window.location,
+           connectionId: window.vision.connectionId
+         }));
+
+         window.vision.heartbeat(socket);
+       }
+
+       if (socket.readyState > 1) window.vision.handleConnectionError();
+      }, window.vision.options.heartbeatInterval || 1000);
    },
 
   messageHandler: (event) => {
@@ -65,31 +70,17 @@ window.vision = {
   connect: (uri) => {
     var wsUri = uri || window.vision.uri;
 
-    try {
-      window.vision.websocket = new WebSocket(wsUri);
-    } catch(err) {
-      console.log(`Failed connecting to vision server: ${wsUri}, retrying with back-off.`);
-
-      window.vision.connectionRetryCount++;
-
-      if (window.vision.connectionRetryMax > 0 && window.vision.connectionRetryMax > window.vision.connectionRetryCount) {
-        console.log(`Connection retries exhausted. Max: ${window.vision.connectionRetryMax}`);
-        return;
-      }
-
-      window.vision.connectionRetryInterval = Math.pow(2, window.vision.connectionRetryCount) * 1000;
-
-      if (window.vision.connectionRetryInterval > window.vision.connectionRetryIntervalMax) {
-        window.vision.connectionRetryInterval = window.vision.connectionRetryIntervalMax;
-      }
-
-      setTimeout(() => window.vi.connect(uri), window.vision.connectionRetryInterval);
-      console.log(`Retrying connection to server in ${window.vision.connectionRetryInterval/100} seconds.`);
+    window.vision.websocket = new WebSocket(wsUri);
+    window.vision.websocket.onerror = (event) => {
+      console.log('socket failed. attempting reconnect.');
+      return window.vision.handleConnectionError(uri);
     }
 
     if (!window.vision.websocket.onopen) {
       window.vision.websocket.onopen = (evnt) => {
         console.log('onopen - event:' + JSON.stringify(evnt));
+        window.vision.connectionRetryCount = 0;
+        window.vision.connectionRetryInterval = 1000;
         window.vision.heartbeat(window.vision.websocket);
       };
     }
@@ -97,5 +88,25 @@ window.vision = {
     if (!window.vision.websocket.onmessage) {
       window.vision.websocket.onmessage = window.vision.messageHandler;
     }
+  },
+
+  handleConnectionError: (uri) => {
+    console.log(`Failed connecting to vision server: ${uri}, retrying with back-off.`);
+
+    window.vision.connectionRetryCount++;
+
+    if (window.vision.connectionRetryMax > 0 && window.vision.connectionRetryMax > window.vision.connectionRetryCount) {
+      console.log(`Connection retries exhausted. Max: ${window.vision.connectionRetryMax}`);
+      return;
+    }
+
+    window.vision.connectionRetryInterval = Math.pow(2, window.vision.connectionRetryCount) * 1000;
+
+    if (window.vision.connectionRetryInterval > window.vision.connectionRetryIntervalMax) {
+      window.vision.connectionRetryInterval = window.vision.connectionRetryIntervalMax;
+    }
+
+    setTimeout(() => window.vision.connect(uri), window.vision.connectionRetryInterval);
+    console.log(`Retrying connection to server in ${window.vision.connectionRetryInterval/1000} seconds.`);
   }
 };
