@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack -d --watch & http-server . -p 3000 -c-1",
+    "dev": "webpack -d --watch & http-server . -p 3000 -c 0",
     "build": "webpack -p"
   },
   "author": "",
