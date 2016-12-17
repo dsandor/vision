@@ -65,6 +65,8 @@
 	
 	var _reducers = __webpack_require__(/*! ./reducers */ 250);
 	
+	var _reducers2 = _interopRequireDefault(_reducers);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -73,7 +75,7 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var store = (0, _redux.createStore)(_reducers.myReducer);
+	var store = (0, _redux.createStore)(_reducers2.default);
 	
 	var App = function (_React$Component) {
 	  _inherits(App, _React$Component);
@@ -28132,7 +28134,12 @@
 	  var action = arguments[1];
 	
 	  console.log('myReducer, state:', state, 'action:', action);
-	  return state;
+	  return function () {
+	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	    var action = arguments[1];
+	
+	    console.log('regucer called: ', state, ' action:', action);
+	  };
 	};
 	
 	exports.default = myReducer;

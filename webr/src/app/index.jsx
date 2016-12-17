@@ -3,7 +3,7 @@ import {render} from 'react-dom';
 import {Navbar, NavItem, Icon} from 'react-materialize';
 import { Provider } from 'react-redux'
 import { createStore } from 'redux'
-import {myReducer} from './reducers';
+import myReducer from './reducers';
 
 let store = createStore(myReducer);
 
