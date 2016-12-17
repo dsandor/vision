@@ -1,0 +1,9 @@
+{
+  "generator-react-webpack": {
+    "appName": "web3",
+    "style": "css",
+    "cssmodules": true,
+    "postcss": false,
+    "generatedWithVersion": 4
+  }
+}
