@@ -67,6 +67,10 @@
 	
 	var _reducers2 = _interopRequireDefault(_reducers);
 	
+	var _ClientList = __webpack_require__(/*! ./components/ClientList */ 251);
+	
+	var _ClientList2 = _interopRequireDefault(_ClientList);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -28143,6 +28147,96 @@
 	};
 	
 	exports.default = myReducer;
+
+/***/ },
+/* 251 */
+/*!******************************************!*\
+  !*** ./src/app/components/ClientList.js ***!
+  \******************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _Client = __webpack_require__(/*! ./Client */ 252);
+	
+	var _Client2 = _interopRequireDefault(_Client);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var ClientList = function ClientList(_ref) {
+	  var clients = _ref.clients,
+	      onClientClick = _ref.onClientClick;
+	  return _react2.default.createElement(
+	    'ul',
+	    null,
+	    clients.map(function (client) {
+	      return _react2.default.createElement(_Client2.default, _extends({
+	        key: client.id
+	      }, client, {
+	        onClick: function onClick() {
+	          return onClientClick(client.id);
+	        }
+	      }));
+	    })
+	  );
+	};
+	
+	ClientList.propTypes = {
+	  clients: _react.PropTypes.arrayOf(_react.PropTypes.shape({
+	    id: _react.PropTypes.number.isRequired,
+	    text: _react.PropTypes.string.isRequired
+	  }).isRequired).isRequired,
+	  onClientClick: _react.PropTypes.func.isRequired
+	};
+	
+	exports.default = ClientList;
+
+/***/ },
+/* 252 */
+/*!**************************************!*\
+  !*** ./src/app/components/Client.js ***!
+  \**************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var Client = function Client(_ref) {
+	  var onClick = _ref.onClick,
+	      completed = _ref.completed,
+	      text = _ref.text;
+	  return _react2.default.createElement(
+	    'li',
+	    { onClick: onClick },
+	    text
+	  );
+	};
+	
+	Client.propTypes = {
+	  onClick: _react.PropTypes.func.isRequired,
+	  text: _react.PropTypes.string.isRequired
+	};
+	
+	exports.default = Client;
 
 /***/ }
 /******/ ]);

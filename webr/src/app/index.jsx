@@ -4,6 +4,7 @@ import {Navbar, NavItem, Icon} from 'react-materialize';
 import { Provider } from 'react-redux'
 import { createStore } from 'redux'
 import myReducer from './reducers';
+import ClientList from './components/ClientList';
 
 let store = createStore(myReducer);
 
@@ -19,6 +20,7 @@ class App extends React.Component {
               <NavItem href='get-started.html'><Icon>more_vert</Icon></NavItem>
           </Navbar>
           <p>This is the first view of your ReactJS application with Materialize.</p>
+          <ClientList clients= onClientClick="" clients="" onClientClick=""/>
         </div>
       </Provider>
     );
