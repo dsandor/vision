@@ -7,6 +7,7 @@ const state = {
   count: 0,
   appTitle: 'vision-web',
   appVersion: '0.0.1',
+  clients: [1, 2, 3, 4]
 }
 
 const mutations = {
