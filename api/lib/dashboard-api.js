@@ -15,9 +15,9 @@ function sendMessage(socket, type, message) {
   });
 }
 
-function sendStats(socket) {
+function sendStats(socket, collector) {
   setTimeout(() => {
-    sendMessage(socket, 'stats', { time: new Date() })
+    sendMessage(socket, 'stats', { clients: collector.connections, time: new Date() })
       .then(() => sendStats(socket))
       .catch(() => {
         console.log('removing client connect due to failure');
@@ -26,12 +26,13 @@ function sendStats(socket) {
   }, 1000);
 }
 
-class Collector {
+class DashboardApi {
   constructor(options) {
     options = options || {};
     this.port = options.port || 16998;
     this.connections = {}
     this.wsServer = new Server({ port: this.port });
+    this.collector = options.collector;
 
     if (options.autoStart) this.initSocket();
   }
@@ -49,9 +50,24 @@ class Collector {
         console.log('[id:%s] received: %s', connectionId, message);
       });
 
-      sendStats(ws);
+      sendStats(ws, this.collector);
     });
+
+    this.collector.on('client-message', this.clientMessageHandler.bind(this));
+  }
+
+  clientMessageHandler(client, message) {
+    console.log('CLIENT-Message ->', message, client);
+    this.broadcast(message);
+  }
+
+  broadcast(message) {
+    if (this.connections) {
+      Object.keys(this.connections).forEach((key) => {
+        sendMessage(this.connections[key], 'broadcast', JSON.parse(message));
+      });
+    }
   }
 }
 
-module.exports = Collector;
+module.exports = DashboardApi;

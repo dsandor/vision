@@ -1,7 +1,9 @@
 'use strict';
 
 const uuid = require('uuid'),
-      { Server }  = require('ws');
+      { Server }  = require('ws'),
+      EventEmitter = require('events');
+
 
 function sendMessage(socket, type, message) {
   return new Promise((resolve, reject) => {
@@ -26,8 +28,9 @@ function sendTicks(socket) {
   }, 1000);
 }
 
-class Collector {
+class Collector extends EventEmitter {
   constructor(options) {
+    super();
     options = options || {};
     this.port = options.port || 16999;
     this.connections = {}
@@ -47,11 +50,14 @@ class Collector {
 
       ws.on('message', (message) => {
         console.log('[id:%s] received: %s', connectionId, message);
+        this.emit('client-message', connectionId, message);
       });
 
       sendTicks(ws);
     });
   }
+
+
 }
 
 module.exports = Collector;

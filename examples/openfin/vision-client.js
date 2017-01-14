@@ -11,8 +11,22 @@ window.vision = {
 
   connectionRetryInterval: 1000,
 
+  monitorInfo: {},
+
+  hostInfo: {},
+
+  processList: {},
+
   init: (options) => {
     const ERROR_HOST_REQUIRED = 'Host is a required option.';
+
+    var myNote = new fin.desktop.Notification({
+        url: 'http://goo.gl/nni3sU',
+        message: "Hi notification",
+        onMessage: (message) => {
+            // handle the message from the notification
+        }
+    });
 
     window.vision.options = options || {};
 
@@ -37,6 +51,18 @@ window.vision = {
         }
       });
     }
+
+    fin.desktop.System.getMonitorInfo((monitorInfo) => {
+      this.monitorInfo = monitorInfo;
+    });
+
+    fin.desktop.System.getHostSpecs((hostInfo) => {
+      this.hostInfo = hostInfo;
+    });
+
+    fin.desktop.System.getProcessList((processList) => {
+      this.processList = processList;
+    });
   },
 
    heartbeat: (socket) => {
@@ -46,7 +72,10 @@ window.vision = {
          socket.send(JSON.stringify({
            type: 'heartbeat',
            location: window.location,
-           connectionId: window.vision.connectionId
+           connectionId: window.vision.connectionId,
+           processList,
+           hostInfo,
+           monitorInfo
          }));
 
          window.vision.heartbeat(socket);

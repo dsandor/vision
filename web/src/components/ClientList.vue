@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="wrap-list client-panel" v-for="client in $store.state.clients">
-        <Client></Client>
+    <div class="wrap-list client-panel text-top" v-for="client in $store.state.clients">
+        <Client :client=client></Client>
     </div>
   </div>
 </template>
@@ -15,6 +15,17 @@
     export default{
         components:{
             Client,
+        },
+        socket: {
+          events: {
+            stats(msg, store) {
+              console.log('got stats:', msg, 'store', store);
+              let message = JSON.parse(msg);
+              if (message.type === 'heartbeat') {
+                store.dispatch('updateClient', message);
+              }
+            }
+          }
         }
     }
 </script>
