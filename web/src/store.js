@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import humanizeDuration from './humanize-duration';
 
 Vue.use(Vuex);
 
@@ -18,6 +19,9 @@ const mutations = {
   },
 
   updateClient(state, client) {
+    client.lastActivity = Date.now();
+    client.humanizedLastActivity = 'a moment ago';
+
     let foundClient = state.clients.find((c) => c.connectionId === client.connectionId);
     if (foundClient) {
       if (!foundClient.heartbeats) foundClient.heartbeats = 0;
@@ -26,24 +30,14 @@ const mutations = {
 
       Object.assign(foundClient, client);
     } else {
-      client.heartbeats = 0;
-      client.hostInfo = {
-        model: '',
-        cpus: [],
-        memory: 0
-      };
-
-      client.monitorInfo = {
-        primaryMonitor: {
-          monitorRect: {
-            bottom: 0,
-            right: 0
-          }
-        }
-      };
-
       state.clients.push(client);
     }
+  },
+
+  updateClientActivityHumanized(state) {
+    state.clients.forEach((c) => {
+      c.humanizedLastActivity = humanizeDuration(Date.now() - c.lastActivity);
+    });
   }
 };
 
@@ -60,6 +54,10 @@ const actions = {
 
   updateClient({commit}, client) {
     commit('updateClient', client);
+  },
+
+  updateClientActivityHumanized({commit}) {
+    commit('updateClientActivityHumanized');
   }
 };
 
@@ -68,5 +66,9 @@ const store = new Vuex.Store({
   mutations,
   actions,
 });
+
+setInterval(() => {
+  store.dispatch('updateClientActivityHumanized');
+}, 5000)
 
 export default store;

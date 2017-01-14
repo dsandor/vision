@@ -19,7 +19,6 @@
         socket: {
           events: {
             stats(msg, store) {
-              console.log('got stats:', msg, 'store', store);
               let message = JSON.parse(msg);
               if (message.type === 'heartbeat') {
                 store.dispatch('updateClient', message);

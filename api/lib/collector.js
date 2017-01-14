@@ -10,7 +10,7 @@ function sendMessage(socket, type, message) {
     socket.send(JSON.stringify(Object.assign({ type }, message)), (err) => {
       if (!err) return resolve();
 
-      console.log('got error from client [%s]: %s', socket.connectionId, err.message);
+      console.log('COL - got error from client [%s]: %s', socket.connectionId, err.message);
 
       return reject(err);
     });

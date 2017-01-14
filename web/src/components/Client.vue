@@ -3,8 +3,9 @@
       <div class="panel panel-default">
         <div class="panel-heading">
           <div class="row">
-            <div class="col-xs-12 text-left"><i class="fa fa-desktop"></i>
-              <small v-if="client.hostInfo.cpus.length > 0">{{ client.hostInfo.cpus[0].model }}</small>
+            <div class="col-xs-12 text-left"><i class="fa fa-desktop"></i>&nbsp;
+              {{ client.additionalProps.username }}
+              <!--<small v-if="client.hostInfo.cpus.length > 0">{{ client.hostInfo.cpus[0].model }}</small> -->
             </div>
           </div>
         </div>
@@ -12,7 +13,9 @@
           <div class="row">
             <div class="col-xs-4 text-right"><b>heartbeat:</b></div>
             <div class="col-xs-8 text-left">
-              <span v-if="client.hostInfo.cpus.length > 0">{{ client.heartbeats }}</span>
+              <span>{{ client.heartbeats }} -
+              {{ client.humanizedLastActivity }}
+              </span>
             </div>
           </div>
           <div class="row">
@@ -63,7 +66,7 @@
         </div>
         <div class="row" v-if="showShutdown === true">
           <div class="col-xs-12 text-center">
-            <a class="btn btn-simple btn-primary">
+            <a class="btn btn-simple btn-primary" v-on:click="sendShutdown">
               SHUTDOWN<div class="ripple-container"></div>
             </a>
             <a class="btn btn-simple btn-primary" v-on:click="cancel">
@@ -73,7 +76,7 @@
         </div>
         <div class="row" v-if="showRestart === true">
           <div class="col-xs-12 text-center">
-            <a class="btn btn-simple btn-primary">
+            <a class="btn btn-simple btn-primary" v-on:click="sendRestart">
               RESTART<div class="ripple-container"></div>
             </a>
             <a class="btn btn-simple btn-primary" v-on:click="cancel">
@@ -117,8 +120,15 @@
             this.showShutdown = false;
             this.showChat = false;
             this.showRestart = false;
-          }
+          },
 
+          sendShutdown() {
+            this.$socket.send(JSON.stringify({ type: 'shutdown' }));
+          },
+
+          sendRestart() {
+            this.$socket.send(JSON.stringify({ type: 'restart' }));
+          }
         },
 // TODO: wire up the buttons to messages to the client.
 // TODO: figure out why the JS for popups are not working.
