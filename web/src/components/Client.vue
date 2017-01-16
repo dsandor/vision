@@ -58,8 +58,8 @@
         </div>
         <div class="row" v-if="showChat === true">
           <div class="col-xs-12 text-center">
-            <input type="text" />
-            <a class="btn btn-simple btn-primary">
+            <input type="text" v-model="message" />
+            <a class="btn btn-simple btn-primary" v-on:click="sendMessage">
             SEND<div class="ripple-container"></div>
             </a>
           </div>
@@ -122,12 +122,20 @@
             this.showRestart = false;
           },
 
+          sendMessage() {
+            this.$socket.send(JSON.stringify({
+              type: 'admin-message',
+              clientConnectionId: this.client.connectionId,
+              message: this.message
+            }));
+          },
+
           sendShutdown() {
-            this.$socket.send(JSON.stringify({ type: 'shutdown' }));
+            this.$socket.send(JSON.stringify({ type: 'shutdown', clientConnectionId: this.client.connectionId }));
           },
 
           sendRestart() {
-            this.$socket.send(JSON.stringify({ type: 'restart' }));
+            this.$socket.send(JSON.stringify({ type: 'restart', clientConnectionId: this.client.connectionId }));
           }
         },
 // TODO: wire up the buttons to messages to the client.
