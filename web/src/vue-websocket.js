@@ -7,11 +7,19 @@ const socketState = {
 
 export default {
 	install(Vue, connectionString, opts) {
-		Vue.prototype.$socketOptions = Object.assign({}, opts, { connectionString });
+		let optionDefaults = {
+		  connectionRetryInterval: 2000,
+      connectionRetryMax: 65535
+    };
+
+	  Vue.prototype.$socketOptions = Object.assign(optionDefaults, opts, { connectionString });
+
+    Vue.prototype.$socketOptions.connectionRetryCount = 0;
 
 		let addListeners = function() {
       let socket = new WebSocket(Vue.prototype.$socketOptions.connectionString || "");
       Vue.prototype.$socket = socket;
+
       socket.onopen = () => {
         if (this.$options["socket"]) {
           let conf = this.$options.socket;
@@ -27,6 +35,28 @@ export default {
           }
         }
       };
+
+      /*
+      socket.onerror = (uri) => {
+        console.log(`Failed connecting to vision server: ${uri}, retrying with back-off.`);
+
+        Vue.prototype.$socketReconnectCount++;
+
+        if (Vue.prototype.$socketOptions.connectionRetryMax > 0 && Vue.prototype.$socketOptions.connectionRetryMax > Vue.prototype.$socketOptions.connectionRetryCount) {
+          console.log(`Connection retries exhausted. Max: ${Vue.prototype.$socketOptions.connectionRetryMax}`);
+          return;
+        }
+
+        Vue.prototype.$socketOptions.connectionRetryInterval = Math.pow(2, Vue.prototype.$socketOptions.connectionRetryCount) * 1000;
+
+        if (Vue.prototype.$socketOptions.connectionRetryInterval > Vue.prototype.$socketOptions.connectionRetryIntervalMax) {
+          Vue.prototype.$socketOptions.connectionRetryInterval = Vue.prototype.$socketOptions.connectionRetryIntervalMax;
+        }
+
+        setTimeout(() => addListeners(), Vue.prototype.$socketOptions.connectionRetryInterval);
+        console.log(`Retrying connection to server in ${Vue.prototype.$socketOptions.connectionRetryInterval/1000} seconds.`);
+      }
+      */
 		};
 
 		let removeListeners = function() {

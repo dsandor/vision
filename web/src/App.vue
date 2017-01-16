@@ -6,10 +6,6 @@
     <br />
     <router-view></router-view>
 
-    <div class="push"></div>
-    <div class="footer">
-      <p>Copyright (c) 2017</p>
-    </div>
   </div>
 </template>
 

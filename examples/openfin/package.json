@@ -1,0 +1,11 @@
+{
+  "name": "openfin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "dev": "http-server . -p 5000 -c0"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -6,10 +6,10 @@ Vue.use(Vuex);
 
 const state = {
   count: 0,
-  appTitle: 'vision-web',
+  appTitle: 'Vision',
   appVersion: '0.0.1',
   clients: []
-}
+};
 
 const mutations = {
   INCREMENT(state) { state.count++ },

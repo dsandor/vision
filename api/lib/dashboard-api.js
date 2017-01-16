@@ -18,6 +18,10 @@ function sendMessage(socket, type, message) {
 
 function sendStats(socket, collector, adminConnections) {
   setTimeout(() => {
+    if (!collector || !collector.connections) {
+      return sendStats(socket);
+    }
+
     sendMessage(socket, 'stats', { clients: collector.connections, time: new Date() })
       .then(() => sendStats(socket))
       .catch(() => {
