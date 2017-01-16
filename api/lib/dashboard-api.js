@@ -64,7 +64,8 @@ class DashboardApi {
         const msg = JSON.parse(message);
 
         if (msg.type === 'shutdown' || msg.type === 'restart') {
-          Object.keys(this.collector.connections).forEach((cid) => {
+          if (this.collector.connections[msg.clientConnectionId]) {
+            const cid = msg.clientConnectionId;
             debug(`sending message ADMIN -> CLIENT[${cid}]: `, message,
               '\nreadyState:', this.collector.connections[cid].readyState);
 
@@ -73,7 +74,7 @@ class DashboardApi {
             } else if (this.collector.connections[cid].readyState === 1) {
               this.collector.connections[cid].send(message);
             }
-          });
+          }
         }
       });
 
