@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import humanizeDuration from './humanize-duration';
 
 Vue.use(Vuex);
 
@@ -20,7 +19,6 @@ const mutations = {
 
   updateClient(state, client) {
     client.lastActivity = Date.now();
-    client.humanizedLastActivity = 'a moment ago';
 
     let foundClient = state.clients.find((c) => c.connectionId === client.connectionId);
     if (foundClient) {
@@ -28,15 +26,18 @@ const mutations = {
 
       foundClient.heartbeats ++;
 
+      client.humanizedLastActivity = humanizeSince(client.lastActivity);
+
       Object.assign(foundClient, client);
     } else {
+      client.humanizedLastActivity = 'just now.';
       state.clients.push(client);
     }
   },
 
-  updateClientActivityHumanized(state) {
+  updateClientList(state) {
     state.clients.forEach((c) => {
-      c.humanizedLastActivity = humanizeDuration(Date.now() - c.lastActivity);
+      c.humanizedLastActivity = humanizeSince(c.lastActivity);
     });
   }
 };
@@ -56,8 +57,8 @@ const actions = {
     commit('updateClient', client);
   },
 
-  updateClientActivityHumanized({commit}) {
-    commit('updateClientActivityHumanized');
+  updateClientList({commit}) {
+    commit('updateClientList');
   }
 };
 
@@ -68,7 +69,35 @@ const store = new Vuex.Store({
 });
 
 setInterval(() => {
-  store.dispatch('updateClientActivityHumanized');
+  store.dispatch('updateClientList');
 }, 5000)
+
+
+function humanizeSince(date) {
+  const delta = Math.round((+new Date - date) / 1000),
+        minute = 60,
+        hour = minute * 60,
+        day = hour * 24;
+
+  let humanized;
+
+  if (delta < 30) {
+    humanized = 'just now.';
+  } else if (delta < minute) {
+    humanized = delta + ' seconds ago.';
+  } else if (delta < 2 * minute) {
+    humanized = 'a minute ago.'
+  } else if (delta < hour) {
+    humanized = Math.floor(delta / minute) + ' minutes ago.';
+  } else if (Math.floor(delta / hour) == 1) {
+    humanized = '1 hour ago.'
+  } else if (delta < day) {
+    humanized = Math.floor(delta / hour) + ' hours ago.';
+  } else if (delta < day * 2) {
+    humanized = 'yesterday';
+  }
+
+  return humanized;
+}
 
 export default store;

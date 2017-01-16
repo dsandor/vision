@@ -1,7 +1,8 @@
 'use strict';
 
 const uuid = require('uuid'),
-      { Server }  = require('ws');
+      { Server }  = require('ws'),
+      debug = require('debug')('vision-dashboard-api');
 
 function sendMessage(socket, type, message) {
   return new Promise((resolve, reject) => {
@@ -9,7 +10,7 @@ function sendMessage(socket, type, message) {
       socket.send(JSON.stringify(Object.assign({ type }, message)), (err) => {
         if (!err) return resolve();
 
-        console.log('D - got error from client [%s]: %s', socket.connectionId, err.message);
+        debug('D - got error from client [%s]: %s', socket.connectionId, err.message);
         return reject(err);
       });
     }
@@ -22,12 +23,12 @@ function sendStats(socket, collector, adminConnections) {
       return sendStats(socket);
     }
 
-    sendMessage(socket, 'stats', { clients: collector.connections, time: new Date() })
+    return sendMessage(socket, 'stats', { clients: collector.connections, time: new Date() })
       .then(() => sendStats(socket))
       .catch(() => {
-        console.log('D - failed sending stats:', socket.connectionId);
+        debug('D - failed sending stats:', socket.connectionId);
         if (adminConnections[socket.connectionId]) {
-          console.log('conn exists..', socket.connectionId, 'readyState:', socket.readyState);
+          debug('conn exists..', socket.connectionId, 'readyState:', socket.readyState);
         }
       });
   }, 1000);
@@ -53,23 +54,23 @@ class DashboardApi {
 
       sendMessage(ws, 'handshake', { connectionId })
         .catch((err) => {
-          console.log('D - caught error sending handshake: ', err);
+          debug('D - caught error sending handshake: ', err);
           delete this.connections[connectionId];
         });
 
       ws.on('message', (message) => {
-        console.log('[id:%s] received: %s', connectionId, message);
+        debug('[id:%s] received: %s', connectionId, message);
 
         const msg = JSON.parse(message);
 
         if (msg.type === 'shutdown' || msg.type === 'restart') {
           Object.keys(this.collector.connections).forEach((cid) => {
-            console.log(`sending message ADMIN -> CLIENT[${cid}]: `,message,
+            debug(`sending message ADMIN -> CLIENT[${cid}]: `, message,
               '\nreadyState:', this.collector.connections[cid].readyState);
 
             if (this.collector.connections[cid].readyState > 1) {
               delete this.collector.connections[cid];
-            } else if (this.collector.connections[cid].readyState ===1) {
+            } else if (this.collector.connections[cid].readyState === 1) {
               this.collector.connections[cid].send(message);
             }
           });
@@ -83,7 +84,7 @@ class DashboardApi {
   }
 
   clientMessageHandler(client, message) {
-    console.log('D - CLIENT-Message ->', message, client);
+    debug('D - CLIENT-Message ->', message, client);
     this.broadcast(message);
   }
 
@@ -92,7 +93,7 @@ class DashboardApi {
       Object.keys(this.connections).forEach((key) => {
         sendMessage(this.connections[key], 'broadcast', JSON.parse(message))
           .catch((err) => {
-            console.log('D - could not send to admin client: ', err);
+            debug('D - could not send to admin client: ', err);
             delete this.connections[key];
           });
       });

@@ -132,10 +132,12 @@
 
           sendShutdown() {
             this.$socket.send(JSON.stringify({ type: 'shutdown', clientConnectionId: this.client.connectionId }));
+            this.showShutdown = false;
           },
 
           sendRestart() {
             this.$socket.send(JSON.stringify({ type: 'restart', clientConnectionId: this.client.connectionId }));
+            this.showRestart = false;
           }
         },
 // TODO: wire up the buttons to messages to the client.
