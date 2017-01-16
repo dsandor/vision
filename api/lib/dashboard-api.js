@@ -5,12 +5,14 @@ const uuid = require('uuid'),
 
 function sendMessage(socket, type, message) {
   return new Promise((resolve, reject) => {
-    socket.send(JSON.stringify(Object.assign({ type }, message)), (err) => {
-      if (!err) return resolve();
+    if (socket.readyState === 1) {
+      socket.send(JSON.stringify(Object.assign({ type }, message)), (err) => {
+        if (!err) return resolve();
 
-      console.log('D - got error from client [%s]: %s', socket.connectionId, err.message);
-      return reject(err);
-    });
+        console.log('D - got error from client [%s]: %s', socket.connectionId, err.message);
+        return reject(err);
+      });
+    }
   });
 }
 
@@ -58,8 +60,14 @@ class DashboardApi {
 
         if (msg.type === 'shutdown' || msg.type === 'restart') {
           Object.keys(this.collector.connections).forEach((cid) => {
-            console.log(`sending message ADMIN -> CLIENT[${cid}]: `, message);
-            this.collector.connections[cid].send(message);
+            console.log(`sending message ADMIN -> CLIENT[${cid}]: `,message,
+              '\nreadyState:', this.collector.connections[cid].readyState);
+
+            if (this.collector.connections[cid].readyState > 1) {
+              delete this.collector.connections[cid];
+            } else if (this.collector.connections[cid].readyState ===1) {
+              this.collector.connections[cid].send(message);
+            }
           });
         }
       });
