@@ -5,7 +5,11 @@
         "url": "http://localhost:5000/index.html",
         "uuid": "oftest",
         "applicationIcon": "http://localhost:5000/favicon.ico",
-        "autoShow": true
+        "autoShow": true,
+        "defaultWidth": 240,
+        "defaultHeight": 120,
+        "defaultTop": 120,
+        "defaultLeft": 120
     },
     "runtime": {
         "arguments": "",

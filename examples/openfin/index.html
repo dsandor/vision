@@ -15,7 +15,7 @@
         <script type="text/javascript" src="vision-client.js"></script>
         <script type="text/javascript">
             if (window.vision && window.vision.init) {
-                window.vision.init({ host: 'localhost', port: 16999, heartbeatInterval: 3000 });
+                window.vision.init({ host: 'localhost', port: 16999, heartbeatInterval: 3000, additionalProps: { username: 'test user' } });
             }
         </script>
     </head>

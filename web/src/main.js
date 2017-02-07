@@ -5,7 +5,9 @@
 import Vue from 'vue';
 import VueResource from 'vue-resource';
 import VueTranslate from 'vue-translate-plugin';
+import VueWebsocket from "./vue-websocket";
 
+Vue.use(VueWebsocket, "ws://localhost:16998");
 Vue.use(VueResource);
 Vue.use(VueTranslate);
 
@@ -27,3 +29,4 @@ new Vue({
   el: '#app',
   render: h => h(App),
 });
+

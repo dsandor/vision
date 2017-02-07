@@ -1,7 +1,9 @@
 'use strict';
 
 const Collector = require('./collector'),
-      collector = new Collector({ autoStart: true, port: 16999 });
+      collector = new Collector({ autoStart: true, port: 16999 }),
+      Dashboard = require('./dashboard-api'),
+      dashboard = new Dashboard({ autoStart: true, port: 16998, collector });
 
 function diagnostics() {
   setTimeout(() => {

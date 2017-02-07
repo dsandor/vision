@@ -11,9 +11,26 @@ window.vision = {
 
   connectionRetryInterval: 1000,
 
+  monitorInfo: {},
+
+  hostInfo: {},
+
+  processList: {},
+
+  additionalProps: {},
+
   init: (options) => {
     const ERROR_HOST_REQUIRED = 'Host is a required option.';
 
+/*
+    var myNote = new fin.desktop.Notification({
+        url: 'http://goo.gl/nni3sU',
+        message: "Hi notification",
+        onMessage: (message) => {
+            // handle the message from the notification
+        }
+    });
+*/
     window.vision.options = options || {};
 
     if (!options || !options.host) {
@@ -22,7 +39,9 @@ window.vision = {
     }
 
     let host = options.host,
-      port = options.port || 16999;
+        port = options.port || 16999;
+
+    window.vision.additionalProps = options.additionalProps;
 
     window.vision.uri = `ws://${host}:${port}/`;
 
@@ -31,10 +50,31 @@ window.vision = {
         if (fin && fin.desktop) {
           fin.desktop.main(function () {
             window.vision.connect();
+
+            fin.desktop.System.getEnvironmentVariable('HOSTNAME', function(value) {
+              if (value) {
+                window.vision.clientComputerName = value;
+              }
+            }, (err) => {
+              console.log('ERROR getting env variable:', err);
+            });
           });
         } else {
           console.log('openfin environment not found. Not connecting to vision server.');
         }
+      
+               // TODO: Move to a function.  Also move to a more appropriate place.  Also look into race condition with w.vision.connect();
+          fin.desktop.System.getMonitorInfo((monitorInfo) => {
+            window.vision.monitorInfo = monitorInfo;
+          });
+
+          fin.desktop.System.getHostSpecs((hostInfo) => {
+            window.vision.hostInfo = hostInfo;
+          });
+
+          fin.desktop.System.getProcessList((processList) => {
+            window.vision.processList = processList;
+          });
       });
     }
   },
@@ -46,7 +86,11 @@ window.vision = {
          socket.send(JSON.stringify({
            type: 'heartbeat',
            location: window.location,
-           connectionId: window.vision.connectionId
+           connectionId: window.vision.connectionId,
+           processList: window.vision.processList,
+           hostInfo: window.vision.hostInfo,
+           monitorInfo: window.vision.monitorInfo,
+           additionalProps: window.vision.additionalProps
          }));
 
          window.vision.heartbeat(socket);
@@ -64,6 +108,13 @@ window.vision = {
 
     if (message.type === 'handshake') {
       window.vision.connectionId = message.connectionId;
+    } else if (message.type === 'shutdown') {
+      window.close();
+    }else if (message.type === 'restart') {
+      fin.desktop
+        .Application
+        .getCurrent()
+        .restart();
     }
   },
 

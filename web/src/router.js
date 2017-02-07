@@ -4,12 +4,12 @@ import Router from 'vue-router';
 Vue.use(Router);
 
 // ===================== Pages Components ======================
-import Hello from './components/Hello';
+import ClientList from './components/ClientList';
 
 // ==================== Router registration ====================
 export default new Router({
   mode: 'hash',
   routes: [
-    { path: '/', component: Hello, },
+    { path: '/', component: ClientList, },
   ],
 });
