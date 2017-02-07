@@ -9,7 +9,8 @@ export default {
 	install(Vue, connectionString, opts) {
 		let optionDefaults = {
 		  connectionRetryInterval: 2000,
-      connectionRetryMax: 65535
+      connectionRetryMax: 65535,
+      connectionRetryIntervalMax: 20 * 1000
     };
 
 	  Vue.prototype.$socketOptions = Object.assign(optionDefaults, opts, { connectionString });
@@ -17,6 +18,8 @@ export default {
     Vue.prototype.$socketOptions.connectionRetryCount = 0;
 
 		let addListeners = function() {
+		  if (Vue.prototype.$socket) delete Vue.prototype.$socket;
+
       let socket = new WebSocket(Vue.prototype.$socketOptions.connectionString || "");
       Vue.prototype.$socket = socket;
 
@@ -36,13 +39,23 @@ export default {
         }
       };
 
-      /*
-      socket.onerror = (uri) => {
-        console.log(`Failed connecting to vision server: ${uri}, retrying with back-off.`);
+      socket.onerror = (err) => {
+        console.log('socket error:', err);
+        console.log('socket error this context:', this);
+      };
 
-        Vue.prototype.$socketReconnectCount++;
+      socket.onclose = (err) => {
+        console.log('socket close:', err);
+        console.log('socket close this context:', this);
+      };
 
-        if (Vue.prototype.$socketOptions.connectionRetryMax > 0 && Vue.prototype.$socketOptions.connectionRetryMax > Vue.prototype.$socketOptions.connectionRetryCount) {
+      socket.onclose = () => {
+        console.log(`Connection closed to vision server. Retrying with back-off.`);
+
+        delete Vue.prototype.$socket;
+        Vue.prototype.$socketOptions.connectionRetryCount++;
+
+        if (Vue.prototype.$socketOptions.connectionRetryMax > 0 && Vue.prototype.$socketOptions.connectionRetryCount > Vue.prototype.$socketOptions.connectionRetryMax) {
           console.log(`Connection retries exhausted. Max: ${Vue.prototype.$socketOptions.connectionRetryMax}`);
           return;
         }
@@ -53,10 +66,9 @@ export default {
           Vue.prototype.$socketOptions.connectionRetryInterval = Vue.prototype.$socketOptions.connectionRetryIntervalMax;
         }
 
-        setTimeout(() => addListeners(), Vue.prototype.$socketOptions.connectionRetryInterval);
+        setTimeout(() => addListeners.bind(this), Vue.prototype.$socketOptions.connectionRetryInterval);
         console.log(`Retrying connection to server in ${Vue.prototype.$socketOptions.connectionRetryInterval/1000} seconds.`);
       }
-      */
 		};
 
 		let removeListeners = function() {
